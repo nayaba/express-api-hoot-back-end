@@ -69,15 +69,21 @@ router.delete('/:hootId', async (req, res) => {
     try {
 
         //  find the hoot we need to delete
+        const hoot = await Hoot.findById(req.params.hootId)
 
         // check if the logged in user is the author
+        if (!hoot.author.equals(req.user._id)) {
+            return res.status(403).send("You're not allowed to do that!")
+        }
 
         //  delete the hoot
+        const deletedHoot = await Hoot.findByIdAndDelete(req.params.hootId)
 
         // respond with a status and the deleted hoot 
 
-
+        res.status(200).json(deletedHoot)
     } catch (error) {
+        console.log(error)
         res.status(500).json(error)
     }
 })
