@@ -88,6 +88,35 @@ router.delete('/:hootId', async (req, res) => {
     }
 })
 
+router.post('/:hootId/comments', async(req, res) => {
+    try {
+        // add the author to the comment object aka req.body
+        req.body.author = req.user._id
+        console.log('req.body with author: ', req.body)
+
+        // find the hoot that the comment will belong to
+        const hoot = await Hoot.findById(req.params.hootId)
+
+        // add the comment object (req.body) to the comments array on the Hoot
+        hoot.comments.push(req.body)
+
+        // after modifying the hoot, we need to save it
+        await hoot.save()
+
+        // find the newly created comment
+        const newComment = hoot.comments[hoot.comments.length - 1]
+
+        newComment._doc.author = req.user
+
+        // res.status(201).json(hoot)
+        res.status(201).json(newComment)
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json(error)
+    }
+})
+
 module.exports = router
 
 
